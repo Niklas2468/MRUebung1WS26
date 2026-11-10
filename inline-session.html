@@ -107,7 +107,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       let scene = new Scene();
       let solarSystem = new Gltf2Node({url: 'media/gltf/space/space.gltf'});
       scene.addNode(solarSystem);
-      scene.addNode(new SkyboxNode({url: 'media/textures/milky-way-4k.png'}));
+      let skybox = new SkyboxNode({url: 'media/textures/milky-way-4k.png'});
+      scene.addNode(skybox);
 
       let inAR = false;
 
@@ -150,26 +151,25 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         return navigator.xr.requestSession('immersive-vr').then((session) => {
           xrButtonVR.setSession(session);
           session.isImmersive = true;
-          onSessionStarted(session);
 
           inAR = false;
-          console.log("VR session started");
+          onSessionStarted(session);
         });
       }
       function onRequestSessionAR() {
         return navigator.xr.requestSession('immersive-ar').then((session) => {
           xrButtonAR.setSession(session);
           session.isImmersive = true;
-          onSessionStarted(session);
 
           inAR = true;
-          console.log("AR session started");
+          onSessionStarted(session);
         });
       }
 
       function onSessionStarted(session) {
         session.addEventListener('end', onSessionEnded);
-
+        
+        skybox.visible = true;
         if (session.isImmersive && inAR) {
 
           skybox.visible = false;
