@@ -152,6 +152,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           session.isImmersive = true;
           onSessionStarted(session);
 
+          inAR = false;
           console.log("VR session started");
         });
       }
@@ -169,9 +170,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSessionStarted(session) {
         session.addEventListener('end', onSessionEnded);
 
-        if (session.isImmersive) {
-          // When in 'immersive-ar' mode don't draw an opaque background because
-          // we want the real world to show through.
+        if (session.isImmersive && inAR) {
+
           skybox.visible = false;
         }
 
@@ -220,6 +220,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           // which XRReferenceSpace is associated with which XRSession.
           if (session.isImmersive) {
             xrImmersiveRefSpace = refSpace;
+            xrImmersiveRefSpace.addEventListener('reset', (evt) => {
+              if (evt.transform) {
+                // AR experiences typically should stay grounded to the real world.
+                // If there's a known origin shift, compensate for it here.
+                xrImmersiveRefSpace = xrImmersiveRefSpace.getOffsetReferenceSpace(evt.transform);
+              }
+            });
           } else {
             xrInlineRefSpace = refSpace;
           }
