@@ -109,6 +109,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       scene.addNode(solarSystem);
       scene.addNode(new SkyboxNode({url: 'media/textures/milky-way-4k.png'}));
 
+      let inAR = false;
+
       function initXR() {
         xrButtonVR = new WebXRButton({
           onRequestSession: onRequestSessionVR,
@@ -147,7 +149,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onRequestSessionVR() {
         return navigator.xr.requestSession('immersive-vr').then((session) => {
           xrButtonVR.setSession(session);
-
           session.isImmersive = true;
           onSessionStarted(session);
 
@@ -160,6 +161,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           session.isImmersive = true;
           onSessionStarted(session);
 
+          inAR = true;
           console.log("AR session started");
         });
       }
@@ -167,7 +169,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onSessionStarted(session) {
         session.addEventListener('end', onSessionEnded);
 
-        
+        if (session.isImmersive) {
+          // When in 'immersive-ar' mode don't draw an opaque background because
+          // we want the real world to show through.
+          skybox.visible = false;
+        }
+
         if (!gl) {
           gl = createWebGLContext({
             xrCompatible: true
